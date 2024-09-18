@@ -1,20 +1,18 @@
 package com.tencent.wxcloudrun.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.tencent.wxcloudrun.config.ApiResponse;
+import com.tencent.wxcloudrun.core.usecase.StockMonitorCoordinator;
 import com.tencent.wxcloudrun.dto.CounterRequest;
+import com.tencent.wxcloudrun.dto.LoginRequest;
 import com.tencent.wxcloudrun.model.Counter;
 import com.tencent.wxcloudrun.service.CounterService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.List;
 
 /**
  * counter控制器
@@ -25,10 +23,12 @@ public class CounterController {
 
   final CounterService counterService;
   final Logger logger;
+  private final StockMonitorCoordinator stockMonitorCoordinator;
 
-  public CounterController(@Autowired CounterService counterService) {
+  public CounterController(@Autowired CounterService counterService, StockMonitorCoordinator stockMonitorCoordinator) {
     this.counterService = counterService;
     this.logger = LoggerFactory.getLogger(CounterController.class);
+    this.stockMonitorCoordinator = stockMonitorCoordinator;
   }
 
 
@@ -48,6 +48,28 @@ public class CounterController {
     return ApiResponse.ok(count);
   }
 
+  @PostMapping("/api/test")
+  ApiResponse test(@RequestBody CounterRequest counterRequest) {
+    return ApiResponse.ok(1);
+  }
+
+  @GetMapping("/iStock/monitor")
+  ApiResponse iStockMonitor() {
+    return stockMonitorCoordinator.getStockInfo();
+  }
+
+
+  @PostMapping("/api/test1")
+  ApiResponse test1() {
+    return ApiResponse.ok(1);
+  }
+
+  @PostMapping("/api/login")
+  ApiResponse login(@RequestBody LoginRequest request, @RequestHeader HttpHeaders headers) {
+    logger.info("/api/login request {}", request);
+    logger.info("/api/login request headers {}", headers);
+    return ApiResponse.ok(request);
+  }
 
   /**
    * 更新计数，自增或者清零
